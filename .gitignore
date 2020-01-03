@@ -1,7 +1,7 @@
 # My ignores
 *.iml
 .idea/
-Main.py
+main.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
