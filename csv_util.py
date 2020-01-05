@@ -125,7 +125,7 @@ def load_dir_gps_points(input_dir_path, has_header=True):
 
     See Also
     -------
-    `load_dir_gps_points()` which loads a single file
+    `load_file_gps_points()` which loads a single file
     """
     final_list = []
     for filename in os.listdir(input_dir_path):
@@ -154,7 +154,7 @@ def load_file_gps_points(input_path, has_header=True):
         if has_header:
             next(csv_reader, None)
         return_list = [(float(row[1]), float(row[2])) for row in csv_reader]
-    return return_list
+    return list(set(return_list))  # TODO change to just return_list
 
 
 def combine_drive_files(gps_input_path, obd_input_path, obd_mode, delimiter=',', fuel_type=FuelTypes.GASOLINE.value):
@@ -470,3 +470,9 @@ def __generate_full_fuel_data_call(gps_call, obd_matrix):
                 speed_time_diff = abs(obd_call[0] - gps_call[0])
                 speed_value = obd_call[2]
     return [speed_value, fuel_consumption_value]
+
+
+def save_tuples_to_csv(tuple_list, output_path, create=True):
+    with open(output_path, 'w+' if create else 'w') as file:
+        for point in tuple_list:
+            file.write(str(point[0]) + ',' + str(point[1]) + '\n')
