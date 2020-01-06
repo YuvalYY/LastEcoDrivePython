@@ -149,12 +149,12 @@ def load_file_gps_points(input_path, has_header=True):
     List[(float,float)]
         A list of tuples representing the GPS points
     """
-    with open(os.path.join(input_path), 'r') as file:
+    with open(input_path, 'r') as file:
         csv_reader = reader(file)
         if has_header:
             next(csv_reader, None)
         return_list = [(float(row[1]), float(row[2])) for row in csv_reader]
-    return list(set(return_list))  # TODO change to just return_list
+    return return_list
 
 
 def combine_drive_files(gps_input_path, obd_input_path, obd_mode, delimiter=',', fuel_type=FuelTypes.GASOLINE.value):
@@ -334,6 +334,13 @@ def __generate_full_data_call(gps_call, obd_matrix, obd_mode=OBDModes.MAF.value,
     else:
         data_call.extend(__generate_full_fuel_data_call(gps_call, obd_matrix))
     return data_call
+
+
+def load_tuples_csv_file(input_path):
+    with open(os.path.join(input_path), 'r') as file:
+        csv_reader = reader(file)
+        return_list = [(float(row[0]), float(row[1])) for row in csv_reader]
+    return return_list
 
 
 def __generate_full_rpm_data_call(gps_call, obd_matrix, fuel_type=FuelTypes.GASOLINE.value,

@@ -1,5 +1,7 @@
 from enum import Enum
 
+from geopy import distance
+
 
 class OBDModes(Enum):
     RPM = 1  # Engine RPM, intake manifold pressure, and air intake temperature readings
@@ -35,6 +37,11 @@ MILLIS_IN_HOUR = 3600000
 
 DEFAULT_VOLUMETRIC_EFFICIENCY = 80  # percent
 DEFAULT_ENGINE_DISPLACEMENT = 1999  # cm^3
+
+FROM_HOME_START_TUPLE = (31.777961976722185, 34.66809331296997)
+FROM_HOME_END_TUPLE = (31.96329274784879, 34.75862040227392)
+TO_HOME_START_TUPLE = (31.964473041755, 34.757973118655065)
+TO_HOME_END_TUPLE = (31.777838011240725, 34.66753131449542)
 
 
 def calculate_maf(rpm, map1, iat, volumetric_efficiency=DEFAULT_VOLUMETRIC_EFFICIENCY,
@@ -100,3 +107,26 @@ def calculate_cost(time1, time2, fcr1, fcr2):
     high = max(fcr1, fcr2)
     low = min(fcr1, fcr2)
     return low * time_in_hours + ((high - low) * time_in_hours) / 2
+
+
+def calculate_route_length(gps_tuple_list):
+    sum1 = 0
+    for i in range(len(gps_tuple_list) - 1):
+        sum1 += distance.distance(gps_tuple_list[i], gps_tuple_list[i + 1]).km
+    return sum1
+
+
+def get_drive_between_two_points(drive_matrix, start, end):
+    start_position = 0
+    closest_start = (float(drive_matrix[0][1]), float(drive_matrix[0][2]))
+    end_position = 0
+    closest_end = (float(drive_matrix[0][1]), float(drive_matrix[0][2]))
+    for i in range(1, len(drive_matrix)):
+        ctupple = (float(drive_matrix[i][1]), float(drive_matrix[i][2]))
+        if distance.distance(start, closest_start).m > distance.distance(start, ctupple).m:
+            start_position = i
+            closest_start = ctupple
+        if distance.distance(end, closest_end).m > distance.distance(end, ctupple).m:
+            end_position = i
+            closest_end = ctupple
+    return drive_matrix[start_position:end_position]
