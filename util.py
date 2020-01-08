@@ -130,3 +130,29 @@ def get_drive_between_two_points(drive_matrix, start, end):
             end_position = i
             closest_end = ctupple
     return drive_matrix[start_position:end_position]
+
+
+def find_closest_center(lat, lon, master_list):
+    min_diff = -1
+    result_lat = 0
+    result_long = 0
+    for point in master_list:
+        if distance.distance(point, (lat, lon)).m < min_diff or min_diff == -1:
+            min_diff = distance.distance(point, (lat, lon)).m
+            result_lat = point[0]
+            result_long = point[1]
+    return result_lat, result_long
+
+
+def calculate_csv_fuel_cost(input_path, has_headers=True):
+    temp_matrix = []
+    sum0 = 0
+    with open(input_path, 'r') as file:
+        if has_headers:
+            next(file, None)
+        for line in file:
+            linesplit = line.split(',')
+            temp_matrix.append([int(linesplit[0]), float(linesplit[-1])])
+    for i in range(len(temp_matrix) - 1):
+        sum0 += calculate_cost(temp_matrix[i][0], temp_matrix[i + 1][0], temp_matrix[i][1], temp_matrix[i + 1][1])
+    return sum0

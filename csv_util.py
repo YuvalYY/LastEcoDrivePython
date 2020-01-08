@@ -93,15 +93,15 @@ def load_obd_file(input_path, delimiter=','):
     return return_matrix
 
 
-def load_drive_file(input_path, delimiter=',', has_header=True, obd_mode=OBDModes.MAF.value):
-    # TODO need to write a strong loading function that understands the obd mode from the header, if there are no
-    #   headers it will use the obd mode provided
+def load_drive_file(input_path, delimiter=',', has_header=True):
     return_matrix = []
     with open(input_path, 'r') as file:
         csv_reader = reader(file, delimiter=delimiter)
         if has_header:
             next(csv_reader, None)
         for row in csv_reader:
+            for i in range(len(row)):
+                row[i] = float(row[i])
             return_matrix.append(row)
     return return_matrix
 
@@ -131,6 +131,15 @@ def load_dir_gps_points(input_dir_path, has_header=True):
     for filename in os.listdir(input_dir_path):
         final_list.extend(load_file_gps_points(os.path.join(input_dir_path, filename), has_header=has_header))
     return final_list
+
+
+def load_driving_model_file(input_path):
+    mat = []
+    with open(input_path, "r", encoding='utf') as f:
+        csv_reader = reader(f)
+        for line in csv_reader:
+            mat.append([float(line[0]), float(line[1]), int(line[2]), float(line[3])])
+    return mat
 
 
 def load_file_gps_points(input_path, has_header=True):
