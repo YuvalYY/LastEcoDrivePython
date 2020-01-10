@@ -59,17 +59,47 @@ def __generate_matrix_for_processing(file_path, centers_list):
     return matrix
 
 
-def load_driving_models_dir(dir_path):
+def cheapest_path_model(dir_path):  # change name to find cheapest path
     vertex_factory = VertexFactory()
     for filename in os.listdir(dir_path):
         __load_driving_model_file(os.path.join(dir_path, filename), vertex_factory)
+    vertex_factory.calculate_edge_costs()
 
     # test printing, need to keep going
-    for v in vertex_factory.get_all_vertexes():
-        if len(v.neighbors) > 3:
-            print(v)
-            v.print_neighbors()
+    # for v in vertex_factory.get_all_vertexes():
+    #     if len(v.neighbors) > 3:
+    #         print(v)
+    #         v.print_neighbors()
     # TODO still needs to calculate the cheapest route
+    visited_vertexes = []
+    found_vertexes = [vertex_factory.get_end()]
+    while found_vertexes:
+        current_vertex = min(found_vertexes, key=lambda x: x.cost_to)
+        visited_vertexes.append(current_vertex)
+        found_vertexes.remove(current_vertex)
+        for neighbor in current_vertex.get_neighbors():
+            if neighbor not in visited_vertexes and neighbor not in found_vertexes:
+                found_vertexes.append(neighbor)
+        current_vertex.update_neighbors()
+
+    # test section - still needs to return the model
+    curr = vertex_factory.get_start()
+    return_model = []
+    while True:
+        curr = vertex_factory.get_vertex_by_id(curr.father_id)
+        return_model.append([curr.lat, curr.lon, curr.speed, curr.cost_to])
+        if curr.father_id == '200,200,0':
+            break
+    return_model = list(reversed(return_model))
+
+    for i in range(len(return_model) - 1):
+        return_model[i][3] = return_model[i + 1][3] - return_model[i][3]
+    return_model[-1][3] = 0
+
+    for line in return_model:
+        print(line)
+
+    return return_model
 
 
 def __load_driving_model_file(file_path, vertex_factory, connect_start=True, connect_end=True):
